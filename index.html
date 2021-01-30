@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Dango Town Auto-Dial Testing System</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link href="https://cdn.bootcdn.net/ajax/libs/mdui/1.0.1/css/mdui.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcdn.net/ajax/libs/mdui/1.0.1/js/mdui.min.js"></script>
+    <style>
+        .rcorner {
+            border-radius: 25px;
+            padding: 20px;
+            width: 96%;
+            left: 5px;
+            display: block;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .status-rcorner-icon {
+            text-align: center;
+            /* width: 100%; */
+        }
+
+        .status-rcorner-text {
+            color: white;
+            /* position: absolute; */
+            display: block;
+            /* width: 100%; */
+            text-align: center;
+            font-weight: 400;
+            font-size: large;
+        }
+
+        .status-rcorner-title {
+            color: white;
+            display: block;
+            /* width: 100%; */
+            text-align: center;
+            font-weight: 400;
+            font-size: xx-large;
+        }
+
+        .status-bar {
+            top: 140px;
+            /* width: 1; */
+        }
+    </style>
+
+    <script>
+        $(() => {
+            window.onwinloaded = () => {
+                function show_server_status(server_name, status_icon, status_text, bg_color_name) {
+                    // Dango Town Main Server
+                    // done
+                    // Working Normally
+                    // Green:#6c9b00 ; Red:#cd3700
+                    var bg_color;
+                    if (bg_color_name == "green") bg_color = "#6c9b00";
+                    else bg_color = "#cd3700";
+                    var html_text = `
+<div class="rcorner server-item" style="background-color: ${bg_color};">
+    <div class="center">
+        <div class="status-rcorner-title">${server_name}</div>
+        <span class="status-rcorner-text">
+            <i class="status-rcorner-icon mdui-icon material-icons">${status_icon}</i>
+            ${status_text}
+        </span>
+    </div>
+</div>
+<br />`
+                    $(".container").append(html_text)
+                }
+                window.server_status = (server_name, is_server_working = true) => {
+                    if (is_server_working)
+                        show_server_status(server_name, "done", "Working", "green")
+                    else
+                        show_server_status(server_name, "close", "Not Working", "red")
+                }
+
+                $.getJSON('/status.json', (d) => {
+                    for (var i in d) {
+                        server_status(d[i].name, d[i].status)
+                    }
+                })
+            }
+            $.getJSON('/info.json', (d) => {
+                $(".container").append("<br /><div class=\"center title mdui-typo-display-2\">" + d.name + "</div><br />")
+                var timetext = new Date()
+                timetext.setTime(d.upd)
+                timetext = timetext.toLocaleString()
+                $(".container").append("<div class=\"center title mdui-typo-subtitle\">Last update: " + timetext + "</div><br />")
+                onwinloaded()
+            })
+        })
+    </script>
+</head>
+
+<body class="mdui-theme-layout-dark">
+    <div class="mdui-container-fluid container"></div>
+</body>
+
+</html>
